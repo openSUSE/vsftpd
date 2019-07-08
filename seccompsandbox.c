@@ -473,6 +473,10 @@ seccomp_sandbox_setup_postlogin(const struct vsf_session* p_sess)
       /* Need to send file descriptors to privileged broker. */
       allow_nr_1_arg_match(__NR_sendmsg, 3, 0);
     }
+    if (is_anon && tunable_chown_uploads)
+    {
+      allow_nr(__NR_fchmod);
+    }
   }
 
   if (tunable_syslog_enable)
@@ -536,6 +540,12 @@ seccomp_sandbox_setup_postlogin_broker()
   seccomp_sandbox_setup_base();
   seccomp_sandbox_setup_data_connections();
   allow_nr_1_arg_match(__NR_sendmsg, 3, 0);
+  if (tunable_chown_uploads)
+  {
+    allow_nr(__NR_fstat);
+    allow_nr(__NR_fchown);
+    allow_nr_1_arg_match(__NR_recvmsg, 3, 0);
+  }
 }
 
 void
