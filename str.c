@@ -27,6 +27,24 @@ static int str_equal_internal(const char* p_buf1, unsigned int buf1_len,
                               const char* p_buf2, unsigned int buf2_len);
 
 /* Private functions */
+static int
+continuation_char(unsigned char str, int* val)
+{
+  if ((str & 0xc0) != 0x80) /* 10xxxxxx */
+    return 0;
+  (*val) <<= 6;
+  (*val) |= str & 0x3f;
+  return 1;
+}
+
+static int
+unicode_valid(int b)
+{
+  return (b < 0x110000 && ((b & 0xFFFFF800) != 0xD800)
+        && (b < 0xFDD0 || b > 0xFDEF)
+        && (b & 0xFFFE) != 0xFFFE);
+}
+
 static void
 s_setbuf(struct mystr* p_str, char* p_newbuf)
 {
@@ -180,6 +198,45 @@ str_reserve(struct mystr* p_str, unsigned int res_len)
   }
   p_str->p_buf[res_len - 1] = '\0';
 }
+
+int str_is_utf8( const struct mystr* p_str )
+{
+  unsigned int i;
+  int min = 0, val = 0;
+
+  for(i = 0; i < p_str->len; i++)
+  {
+    if( (unsigned char)p_str->p_buf[i] < 128) continue;
+
+    if((p_str->p_buf[i] & 0xe0) == 0xc0) { /* 110xxxxx */
+      if((p_str->p_buf[i] & 0x1e) == 0) return 0;
+      i++;
+      if((p_str->p_buf[i] & 0xc0) != 0x80)  /* 10xxxxxx */
+        return 0;
+    } else {
+      if((p_str->p_buf[i] & 0xf0) == 0xe0) { /* 1110xxxx */
+        min = (1 << 11);
+        val = p_str->p_buf[i] & 0x0f;
+        goto TWO_REMAINING;
+      } else if((p_str->p_buf[i] & 0xf8) == 0xf0) { /* 11110xxx */
+        min = (1 << 16);
+        val = p_str->p_buf[i] & 0x07;
+      } else {
+        return 0;
+      }
+      i++;
+      if(!continuation_char(p_str->p_buf[i], &val)) return 0;
+TWO_REMAINING:
+      i++;
+      if(!continuation_char(p_str->p_buf[i], &val)) return 0;
+      i++;
+      if(!continuation_char(p_str->p_buf[i], &val)) return 0;
+      if(val < min || !unicode_valid(val)) return 0;
+    }
+  }
+  return 1;
+}
+
 
 int
 str_isempty(const struct mystr* p_str)
@@ -702,11 +759,13 @@ void
 str_replace_unprintable(struct mystr* p_str, char new_char)
 {
   unsigned int i;
-  for (i=0; i < p_str->len; i++)
-  {
-    if (!vsf_sysutil_isprint(p_str->p_buf[i]))
+  if( !str_is_utf8( p_str ) ) {
+    for (i=0; i < p_str->len; i++)
     {
-      p_str->p_buf[i] = new_char;
+      if (!vsf_sysutil_isprint(p_str->p_buf[i]))
+      {
+        p_str->p_buf[i] = new_char;
+      }
     }
   }
 }

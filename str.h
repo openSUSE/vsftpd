@@ -36,6 +36,7 @@ void str_free(struct mystr* p_str);
 void str_trunc(struct mystr* p_str, unsigned int trunc_len);
 void str_reserve(struct mystr* p_str, unsigned int res_len);
 
+int str_is_utf8(const struct mystr* p_str);
 int str_isempty(const struct mystr* p_str);
 unsigned int str_getlen(const struct mystr* p_str);
 const char* str_getbuf(const struct mystr* p_str);
