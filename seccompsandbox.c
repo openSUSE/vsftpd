@@ -305,6 +305,14 @@ seccomp_sandbox_setup_base()
   allow_nr(__NR_rt_sigreturn); /* Used to handle SIGPIPE. */
   allow_nr(__NR_restart_syscall);
   allow_nr(__NR_close);
+  
+ /*
+  * Calls to alarm and date
+  * Seems to be some part of the logging
+  * wrt bnc#870122
+  */
+   allow_nr(__NR_alarm);
+   allow_nr(__NR_gettimeofday);
 
   /* Always need to be able to exit ! */
   allow_nr(__NR_exit_group);
