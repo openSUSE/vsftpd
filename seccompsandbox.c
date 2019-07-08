@@ -306,6 +306,13 @@ seccomp_sandbox_setup_base()
   allow_nr(__NR_restart_syscall);
   allow_nr(__NR_close);
   
+  /* Required on SLE-15 because of changes in 3rd party libraries.
+   * Reported in bsc#1089088.
+   */
+  allow_nr(__NR_wait4);
+  allow_nr(__NR_sysinfo);
+  allow_nr(__NR_shutdown);
+
  /*
   * Calls to alarm and date
   * Seems to be some part of the logging
