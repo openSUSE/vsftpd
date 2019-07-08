@@ -66,7 +66,7 @@
 #include <utmpx.h>
 
 /* BEGIN config */
-#if defined(__linux__)
+#if defined(__linux__) && !defined(__s390__)
   #include <errno.h>
   #include <syscall.h>
   #define VSF_SYSDEP_HAVE_LINUX_CLONE
