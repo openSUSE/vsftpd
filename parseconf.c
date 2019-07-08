@@ -107,6 +107,7 @@ parseconf_bool_array[] =
   { "http_enable", &tunable_http_enable },
   { "seccomp_sandbox", &tunable_seccomp_sandbox },
   { "allow_writeable_chroot", &tunable_allow_writeable_chroot },
+  { "allow_root_squashed_chroot", &tunable_allow_root_squashed_chroot },
   { 0, 0 }
 };
 

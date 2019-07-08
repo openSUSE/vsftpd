@@ -164,6 +164,9 @@ drop_all_privs(void)
   {
     str_alloc_text(&dir_str, tunable_secure_chroot_dir);
   }
+  if (tunable_allow_root_squashed_chroot) {
+    option |= VSF_SECUTIL_OPTION_CHANGE_EUID;
+  }
   /* Be kind: give good error message if the secure dir is missing */
   {
     struct vsf_sysutil_statbuf* p_statbuf = 0;
@@ -452,6 +455,9 @@ common_do_login(struct vsf_session* p_sess, const struct mystr* p_user_str,
     if (!was_anon && tunable_allow_writeable_chroot)
     {
       secutil_option |= VSF_SECUTIL_OPTION_ALLOW_WRITEABLE_ROOT;
+    }
+    if (do_chroot && tunable_allow_root_squashed_chroot) {
+        secutil_option |= VSF_SECUTIL_OPTION_CHANGE_EUID;
     }
     calculate_chdir_dir(was_anon, &userdir_str, &chroot_str, &chdir_str,
                         p_user_str, p_orig_user_str);
