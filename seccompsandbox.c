@@ -511,6 +511,15 @@ seccomp_sandbox_setup_postlogin(const struct vsf_session* p_sess)
       allow_nr(__NR_chmod);
     }
   }
+
+  /*
+   * MV: this enables logging to the syslog - the vsf_log_do_log are in postlogin.c and privops.c, but hopefully this is enough
+   */
+  if (tunable_syslog_enable)
+  {
+    allow_nr_1_arg_mask(__NR_sendto, 1, 4);
+  }
+
 }
 
 void
