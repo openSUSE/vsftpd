@@ -308,6 +308,25 @@ seccomp_sandbox_setup_base()
 
   /* Always need to be able to exit ! */
   allow_nr(__NR_exit_group);
+
+  /* 
+   * MV: this is needed for
+   * vsf_sysutil_activate_noblock
+   * vsf_sysutil_deactivate_noblock
+   * 
+   * both called from various places (like all those die, bug in utilities),
+   * so lets enable it by default
+   */
+  allow_nr_1_arg_match(__NR_fcntl, 2, F_GETFL);
+  allow_nr_1_arg_match(__NR_fcntl, 2, F_SETFL);
+
+  /*
+   * MV: this form have newer worked, neither with O_RDWR, O_RDWR|O_NONBLOCK
+   * however fcntl(2) says that most of arguments to fcntl are ignored on Linux
+   * thus this might be safe to do
+   */
+  //allow_nr_2_arg_match(__NR_fcntl, 2, F_SETFL, 3, O_RDWR);
+
 }
 
 void
