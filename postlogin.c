@@ -1061,6 +1061,11 @@ handle_upload_common(struct vsf_session* p_sess, int is_append, int is_unique)
     {
       do_truncate = 1;
     }
+    if (new_file_fd >= 0) {
+      vsf_sysutil_fstat(new_file_fd, &s_p_statbuf);
+      if (vsf_sysutil_statbuf_is_regfile(s_p_statbuf))
+        vsf_sysutil_deactivate_noblock(new_file_fd);
+    } 
   }
   if (vsf_sysutil_retval_is_error(new_file_fd))
   {
