@@ -639,6 +639,19 @@ The timeout, in seconds, for a remote client to establish connection with
 a PASV style data connection.
 
 Default: 60
+
+.TP
+.B address_space_limit
+Set the amount of memory vsftpd can use (in bytes). This limit exists so that
+attackers cannot exploit any potential bugs in the server that might result in
+vsftpd allocating huge amounts of memory that would affect the host system
+negatively, e.g. causing thrashing or killing random processes due to Linux's
+OOM system. If the value is configured too low, vsftpd will fail with "out of
+memory" errors during normal operations. Oftentimes, this occurs inside of the
+PAM stack on systems that have many memory-intensive PAM modules enabled.
+
+Default: 104857600 (100MB)
+
 .TP
 .B anon_max_rate
 The maximum data transfer rate permitted, in bytes per second, for anonymous

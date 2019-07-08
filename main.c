@@ -320,7 +320,7 @@ env_init(void)
 static void
 limits_init(void)
 {
-  unsigned long limit = VSFTP_AS_LIMIT;
+  unsigned long limit = tunable_address_space_limit ?: VSFTP_AS_LIMIT;
   if (tunable_text_userdb_names)
   {
     /* Turns out, LDAP lookups for lots of userid -> name mappings can really

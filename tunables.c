@@ -110,6 +110,7 @@ unsigned int tunable_delay_failed_login;
 unsigned int tunable_delay_successful_login;
 unsigned int tunable_max_login_fails;
 unsigned int tunable_chown_upload_mode;
+unsigned int tunable_address_space_limit;
 
 const char* tunable_secure_chroot_dir;
 const char* tunable_ftp_username;
@@ -255,6 +256,7 @@ tunables_load_defaults()
   tunable_max_login_fails = 3;
   /* -rw------- */
   tunable_chown_upload_mode = 0600;
+  tunable_address_space_limit = 0;	/* See main.c:limits_init */
 
   install_str_setting("/usr/share/empty", &tunable_secure_chroot_dir);
   install_str_setting("ftp", &tunable_ftp_username);
