@@ -560,5 +560,6 @@ build_dir_line(struct mystr* p_str, const struct mystr* p_filename_str,
   /* Filename */
   str_append_str(p_str, p_filename_str);
   str_append_text(p_str, "\r\n");
+  str_free(&s_tmp_str);
 }
 
