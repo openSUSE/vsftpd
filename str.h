@@ -102,6 +102,7 @@ int str_atoi(const struct mystr* p_str);
 filesize_t str_a_to_filesize_t(const struct mystr* p_str);
 unsigned int str_octal_to_uint(const struct mystr* p_str);
 void str_basename (struct mystr* d_str, const struct mystr* path);
+void str_normalize_filepath(struct mystr* filepath);
 
 /* PURPOSE: Extract a line of text (delimited by \n or EOF) from a string
  * buffer, starting at character position 'p_pos'. The extracted line will

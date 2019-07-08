@@ -16,6 +16,12 @@
 #define PRIVATE_HANDS_OFF_alloc_bytes alloc_bytes
 #include "str.h"
 
+/* normalize filepath */
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <libgen.h>
+
 /* Ick. Its for die() */
 #include "utility.h"
 #include "sysutil.h"
@@ -780,4 +786,61 @@ str_basename (struct mystr* d_str, const struct mystr* path)
 
   if (str_isempty(d_str))
    str_copy (d_str, path);
+}
+
+void
+str_normalize_filepath(struct mystr* filepath)
+{
+    char *path;
+    char *normdir;
+    char *dir;
+    char *filename;
+    static struct mystr tmp;
+
+    /* normalize filepath */
+    path = str_strdup(filepath);
+    if (path == NULL)
+    {
+        return;
+    }
+    char *ch1 = strdup(path);
+    char *ch2 = strdup(path);
+    if (ch1 == NULL || ch2 == NULL)
+    {
+        goto out;
+    }
+    /* we split dir/file as realpath /home/REGEXP is NULL so we need dir
+     * dir only to function correctly, later on we need to glue back the
+     * file if there is some
+     */
+    dir = dirname(ch1);
+    filename = basename(ch2);
+    normdir = realpath(dir, NULL);
+    if (normdir == NULL)
+    {
+        goto out;
+    }
+    str_alloc_text(&tmp, normdir);
+    unsigned int len = str_getlen(&tmp);
+    if (str_get_char_at(&tmp, len - 1) != '/')
+    {
+        str_append_char(&tmp, '/');
+    }
+    /* / is special it ends in both dirname and basename so ignore it here */
+    if (strcmp(filename, "/") != 0)
+    {
+        str_append_text(&tmp, filename);
+    }
+    /* TODO: here we should run one more stat to determine if the whole thing
+     * is a directory and append trailing / (ie. /home -> /home/).
+     * This will make the deny_file=/home/<REGEXP> work contrary to currently
+     * needed /home<REGEXP>.
+     */
+    str_copy(filepath, &tmp);
+    free(normdir);
+    str_free(&tmp);
+out:
+    free(path);
+    free(ch1);
+    free(ch2);
 }

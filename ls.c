@@ -117,11 +117,13 @@ vsf_ls_populate_dir_list(struct mystr_list* p_list,
     {
       continue;
     }
+    str_copy(&s_next_path_and_filename_str, &normalised_base_dir_str);
+    str_append_str(&s_next_path_and_filename_str, &s_next_filename_str);
     /* If we have an ls option which is a filter, apply it */
     if (!str_isempty(p_filter_str))
     {
       unsigned int iters = 0;
-      if (!vsf_filename_passes_filter(&s_next_filename_str, p_filter_str,
+      if (!vsf_filename_passes_filter(&s_next_path_and_filename_str, p_filter_str,
                                       &iters))
       {
         continue;
@@ -130,8 +132,6 @@ vsf_ls_populate_dir_list(struct mystr_list* p_list,
     /* Calculate the full path (relative to CWD) for lstat() and
      * output purposes
      */
-    str_copy(&s_next_path_and_filename_str, &normalised_base_dir_str);
-    str_append_str(&s_next_path_and_filename_str, &s_next_filename_str);
     if (do_stat)
     {
       /* lstat() the file. Of course there's a race condition - the
@@ -239,6 +239,7 @@ vsf_filename_passes_filter(const struct mystr* p_filename_str,
    * for /a/?/c will not.
    */
   struct mystr filter_remain_str = INIT_MYSTR;
+  struct mystr basic_name_str = INIT_MYSTR;
   struct mystr name_remain_str = INIT_MYSTR;
   struct mystr temp_str = INIT_MYSTR;
   struct mystr brace_list_str = INIT_MYSTR;
@@ -249,27 +250,29 @@ vsf_filename_passes_filter(const struct mystr* p_filename_str,
   int matched = 0;
   
   str_copy(&filter_remain_str, p_filter_str);
+  str_copy(&basic_name_str, p_filename_str);
+  str_normalize_filepath(&basic_name_str);
   
-  if (!str_isempty (&filter_remain_str) && !str_isempty(p_filename_str)) {
+  if (!str_isempty (&filter_remain_str) && !str_isempty(&basic_name_str)) {
     if (str_get_char_at(p_filter_str, 0) == '/') {
-      if (str_get_char_at(p_filename_str, 0) != '/') {
+      if (str_get_char_at(&basic_name_str, 0) != '/') {
         str_getcwd (&name_remain_str);
      
         if (str_getlen(&name_remain_str) > 1) /* cwd != root dir */
           str_append_char (&name_remain_str, '/');
           
-        str_append_str (&name_remain_str, p_filename_str);
+        str_append_str (&name_remain_str, &basic_name_str);
       }
       else
-       str_copy (&name_remain_str, p_filename_str);
+       str_copy (&name_remain_str, &basic_name_str);
     } else {
       if (str_get_char_at(p_filter_str, 0) != '{')
-        str_basename (&name_remain_str, p_filename_str);
+        str_basename (&name_remain_str, &basic_name_str);
       else
-        str_copy (&name_remain_str, p_filename_str);
+        str_copy (&name_remain_str, &basic_name_str);
     }
   } else
-    str_copy(&name_remain_str, p_filename_str);
+    str_copy(&name_remain_str, &basic_name_str);
   
   while (!str_isempty(&filter_remain_str) && *iters < VSFTP_MATCHITERS_MAX)
   {
@@ -472,6 +475,7 @@ vsf_filename_passes_filter(const struct mystr* p_filename_str,
   }
 out:
   str_free(&filter_remain_str);
+  str_free(&basic_name_str);
   str_free(&name_remain_str);
   str_free(&temp_str);
   str_free(&brace_list_str);
