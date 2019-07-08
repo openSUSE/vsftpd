@@ -10,7 +10,7 @@
 
 #include "seccompsandbox.h"
 
-#if defined(__linux__) && defined(__x86_64__)
+#if defined(__linux__) && defined(__x86_64__) && defined(USE_SECCOMP)
 
 #include "session.h"
 #include "sysutil.h"
