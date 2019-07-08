@@ -60,7 +60,9 @@
 #define VSF_SYSDEP_HAVE_LIBCAP
 #define VSF_SYSDEP_HAVE_UTMPX
 
+#ifndef __USE_GNU
 #define __USE_GNU
+#endif
 #include <utmpx.h>
 
 /* BEGIN config */
