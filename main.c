@@ -155,6 +155,9 @@ main(int argc, const char* argv[])
     the_session.num_clients = ret.num_children;
     the_session.num_this_ip = ret.num_this_ip;
   }
+
+  die_init(&the_session);
+
   if (tunable_tcp_wrappers)
   {
     the_session.tcp_wrapper_ok = vsf_tcp_wrapper_ok(VSFTP_COMMAND_FD);

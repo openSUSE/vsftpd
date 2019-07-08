@@ -546,6 +546,10 @@ seccomp_sandbox_setup_postlogin_broker()
     allow_nr(__NR_fchown);
     allow_nr_1_arg_match(__NR_recvmsg, 3, 0);
   }
+  if (tunable_syslog_enable)
+  {
+    allow_nr_1_arg_match(__NR_sendto, 6, 0);
+  }
 }
 
 void

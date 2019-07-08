@@ -2,6 +2,18 @@
 #define VSF_UTILITY_H
 
 struct mystr;
+struct vsf_session;
+
+/* die_init
+ * PURPOSE
+ * Initialize static pointer to vsf_session used for
+ * logging and SSL support used by die() and bug().
+ * If not set (or set to NULL) only dummy write
+ * to VSFTP_COMMAND_FD will be done.
+ * PARAMETERS
+ * p_sess       - pointer to vsf_session or NULL
+ */
+void die_init(struct vsf_session *p_sess);
 
 /* die()
  * PURPOSE
